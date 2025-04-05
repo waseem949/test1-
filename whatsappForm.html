@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Register Your Property</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 py-10">
+  <div class="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-lg">
+    <h2 class="text-2xl font-bold mb-4">Register Your Property</h2>
+    <form id="propertyForm" class="space-y-4">
+
+      <div><label class="block font-medium">Full Name</label><input name="fullName" type="text" required class="w-full p-2 border rounded" /></div>
+      <div><label class="block font-medium">Email</label><input name="email" type="email" required class="w-full p-2 border rounded" /></div>
+      <div><label class="block font-medium">WhatsApp Number</label><input name="whatsapp" type="text" required class="w-full p-2 border rounded" /></div>
+      <div><label class="block font-medium">Location (City & Country)</label><input name="location" type="text" required class="w-full p-2 border rounded" /></div>
+      <div><label class="block font-medium">Number of Properties</label>
+        <select name="properties" class="w-full p-2 border rounded">
+          <option>1-5</option><option>6-10</option><option>11-20</option><option>21-50</option><option>51+</option>
+        </select>
+      </div>
+      <div><label class="block font-medium">Channel Manager</label>
+        <select name="channelManager" class="w-full p-2 border rounded" onchange="toggleOtherCM(this)">
+          <option>Icnea</option><option>Guesty</option><option>Smoobu</option><option>Hostaway</option><option>Rentals United</option><option value="Other">Other</option>
+        </select>
+      </div>
+      <div id="otherCMContainer" style="display: none;">
+        <label class="block font-medium">If Other, specify</label>
+        <input name="otherCM" type="text" class="w-full p-2 border rounded" />
+      </div>
+      <div><label class="block font-medium">Features to Automate</label>
+        <div class="space-y-1">
+          <label><input type="checkbox" name="features" value="Check-in & Check-out WhatsApp" /> Check-in & Check-out WhatsApp</label><br/>
+          <label><input type="checkbox" name="features" value="AI FAQ Messaging" /> AI FAQ Messaging</label><br/>
+          <label><input type="checkbox" name="features" value="Troubleshooting" /> Troubleshooting</label><br/>
+          <label><input type="checkbox" name="features" value="Upselling" /> Upselling</label>
+        </div>
+      </div>
+      <div><label class="block font-medium">When do you want to start?</label>
+        <select name="startDate" class="w-full p-2 border rounded">
+          <option>Immediately</option><option>In 1 month</option><option>Just Exploring</option>
+        </select>
+      </div>
+      <div><label class="block font-medium">Would you like a demo call?</label>
+        <select name="demoCall" class="w-full p-2 border rounded">
+          <option>Yes</option><option>No</option>
+        </select>
+      </div>
+      <div><label class="block font-medium">Additional Comments</label><textarea name="comments" class="w-full p-2 border rounded"></textarea></div>
+
+      <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Submit</button>
+    </form>
+  </div>
+  
+    <script>
+      // Toggle function remains the same
+      function toggleOtherCM(select) {
+        document.getElementById('otherCMContainer').style.display = (select.value === 'Other') ? 'block' : 'none';
+      }
+  
+      // Modified submit handler
+      document.getElementById("propertyForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        
+        // Collect form data
+        const formData = new FormData(this);
+        const data = {
+          fullName: formData.get("fullName"),
+          email: formData.get("email"),
+          whatsapp: formData.get("whatsapp"),
+          location: formData.get("location"),
+          properties: formData.get("properties"),
+          channelManager: formData.get("channelManager"),
+          otherCM: formData.get("otherCM"),
+          features: Array.from(document.querySelectorAll('input[name="features"]:checked')).map(f => f.value),
+          startDate: formData.get("startDate"),
+          demoCall: formData.get("demoCall"),
+          comments: formData.get("comments")
+        };
+  
+        try {
+          // Send to serverless function
+          const response = await fetch('/scripts/xlsCreator', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+          });
+  
+          if (response.ok) {
+            // Redirect on success
+            window.location.href = "https://wa.me/message/5IYX266Z5KPKK1";
+          } else {
+            alert('Submission failed. Please try again.');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('An error occurred during submission.');
+        }
+      });
+    </script>
+  </body>
+  </html>
